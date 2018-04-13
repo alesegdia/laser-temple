@@ -41,9 +41,13 @@ function Editor:keypressed(key, scancode, isrepeat)
     local cx, cy= self.board:getCursorCoords()
     if key == '1' then self.spawner:spawnSolidBlock(cx, cy) end
     if key == '2' then self.spawner:spawnSolidRemovableBlock(cx, cy) end
-    if key == '3' then self.spawner:spawnLaserBlock(cx, cy) end
-    if key == '4' then self.spawner:spawnTotemBlock(cx, cy) end
-    if key == '5' then self.spawner:spawnSinkBlock(cx, cy) end
+    if key == '3' then self.spawner:spawnTotemBlock(cx, cy) end
+    if key == '4' then self.spawner:spawnSinkBlock(cx, cy) end
+
+    if key == 'w' then self.spawner:spawnLaserBlock(cx, cy, "d") end
+    if key == 'a' then self.spawner:spawnLaserBlock(cx, cy, "l") end
+    if key == 's' then self.spawner:spawnLaserBlock(cx, cy, "u") end
+    if key == 'd' then self.spawner:spawnLaserBlock(cx, cy, "r") end
 
     if key == "f2" then
       self.levelManager:saveCurrentSlot(self.spawner:getLevelSpawns())
@@ -59,9 +63,8 @@ end
 
 local legend = [[
 arrows -> move
-A -> clear
-S -> solid block
-D -> solid deactivable block
+WASD -> laser
+1234 -> blocks
 
 NEW MAP SIZE = ({nmapw}, {nmaph})
 O/L -> increase/decrease new map width

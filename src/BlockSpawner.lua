@@ -23,8 +23,20 @@ function BlockSpawner:init(board, level_data)
   end
 end
 
-function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
+function BlockSpawner:despawn(x, y)
   self.board:remove(x_, y_)
+  local to_remove = nil
+  for k,v in pairs(self.levelSpawns.data) do
+    if v.pos[1] == x_ and v.pos[2] == y_ then
+      to_remove = k
+    end
+  end
+  if to_remove ~= nil then
+    table.remove(self.levelSpawns.data, k)
+  end
+end
+
+function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
   local block = {
     pos = { x = x_, y = y_ },
     togglables = {},
@@ -37,7 +49,7 @@ function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
   setmetatable(block, {
     __index = function(t, k)
       if t.togglables[k] == nil then
-        error(k .. " property not togglable")
+        return nil
       end
       if t.togglables[k].active then
         return t.togglables[k].data
@@ -67,18 +79,20 @@ end
 
 function BlockSpawner:spawnSolidRemovableBlock(x, y)
   local block = self:createBlock(x, y, {
-    quad = love.graphics.newQuad(32, 16, 16, 16, 64, 64)
+    quad = love.graphics.newQuad(0, 16, 16, 16, 64, 64)
   }, {
     solid = true
   })
+  self:registerSpawn("srb", {}, x, y)
 end
 
-function BlockSpawner:spawnLaserBlock(x_, y_, direction)
+function BlockSpawner:spawnLaserBlock(x, y, direction)
   local block = self:createBlock(x, y, {
     solid = true,
     laser = direction,
     quad = love.graphics.newQuad(0, 32, 16, 16, 64, 64)
   })
+  self:registerSpawn("lb", {laser=direction}, x, y)
   return block
 end
 
@@ -87,6 +101,7 @@ function BlockSpawner:spawnTotemBlock(x, y)
     totem = true,
     quad = love.graphics.newQuad(16, 16, 16, 16, 64, 64)
   })
+  self:registerSpawn("tb", {}, x, y)
 end
 
 function BlockSpawner:spawnSinkBlock(x, y)
@@ -94,6 +109,7 @@ function BlockSpawner:spawnSinkBlock(x, y)
     sink = true,
     quad = love.graphics.newQuad(32, 0, 16, 16, 64, 64)
   })
+  self:registerSpawn("kb", {}, x, y)
 end
 
 function BlockSpawner:registerSpawn(block_id, extra_data, x, y)
@@ -139,9 +155,12 @@ function BlockSpawner:resetWithSpawns(level_data)
   local spawn_data = deepcopy(level_data.data)
   for k,spawn in ipairs(spawn_data) do
     print(spawn.pos[1] .. ", " .. spawn.pos[2])
-    if spawn.id == "sb" then
-      self:spawnSolidBlock(spawn.pos[1], spawn.pos[2])
-    end
+    if spawn.id == "sb" then self:spawnSolidBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "srb" then self:spawnSolidRemovableBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "lb" then self:spawnLaserBlock(spawn.pos[1], spawn.pos[2], spawn.extra.laser) end
+    if spawn.id == "tb" then self:spawnTotemBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "kb" then self:spawnSinkBlock(spawn.pos[1], spawn.pos[2]) end
+
   end
   print("finished")
 end
