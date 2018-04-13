@@ -7,6 +7,7 @@ local Boot = gamestate.new()
 function Boot:update()
 
   if love.keyboard.isDown("1") then
+    print("meh")
     gamestate.switch(Editor)
   end
 

@@ -92,7 +92,7 @@ function Board:render()
     end
     love.graphics.draw(assets.tilesheet, quad, (x-1) * 16, (y-1) * 16) 
   end)
-  love.graphics.rectangle("line", (self.cursor[1]-1) * 16, (self.cursor[2]-1) * 16, 16, 16)
+  love.graphics.draw(assets.tilesheet, assets.markerQuad, (self.cursor[1]-1) * 16, (self.cursor[2]-1) * 16)
   love.graphics.pop()
 end
 
