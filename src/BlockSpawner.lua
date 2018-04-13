@@ -18,16 +18,15 @@ function BlockSpawner:init(board, level_data)
   self.board = board
   self:resetLevelSpawns()
   if level_data ~= nil then
-    print("Resetting with previous data file")
     self:resetWithSpawns(level_data)
   end
 end
 
 function BlockSpawner:despawn(x, y)
-  self.board:remove(x_, y_)
+  self.board:remove(x, y)
   local to_remove = nil
   for k,v in pairs(self.levelSpawns.data) do
-    if v.pos[1] == x_ and v.pos[2] == y_ then
+    if v.pos[1] == x and v.pos[2] == y then
       to_remove = k
     end
   end
@@ -37,6 +36,7 @@ function BlockSpawner:despawn(x, y)
 end
 
 function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
+  self:despawn(x_, y_)
   local block = {
     pos = { x = x_, y = y_ },
     togglables = {},
@@ -134,8 +134,6 @@ function BlockSpawner:resetLevelSpawns()
   }
 end
 
-local inspect = require 'lib.inspect'
-
 function deepcopy(orig)
     local orig_type = type(orig)
     local copy
@@ -154,7 +152,6 @@ end
 function BlockSpawner:resetWithSpawns(level_data)
   local spawn_data = deepcopy(level_data.data)
   for k,spawn in ipairs(spawn_data) do
-    print(spawn.pos[1] .. ", " .. spawn.pos[2])
     if spawn.id == "sb" then self:spawnSolidBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "srb" then self:spawnSolidRemovableBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "lb" then self:spawnLaserBlock(spawn.pos[1], spawn.pos[2], spawn.extra.laser) end
@@ -162,7 +159,6 @@ function BlockSpawner:resetWithSpawns(level_data)
     if spawn.id == "kb" then self:spawnSinkBlock(spawn.pos[1], spawn.pos[2]) end
 
   end
-  print("finished")
 end
 
 return BlockSpawner

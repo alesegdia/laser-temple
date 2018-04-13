@@ -1,9 +1,10 @@
 local gamestate = require("lib.gamestate")
 local util = require("lib.util")
 local Board = require("src.Board")
-local Editor = gamestate.new()
+Editor = gamestate.new()
 local BlockSpawner = require("src.BlockSpawner")
 local LevelManager = require("src.LevelManager")
+local Game = require("src.states.Game")
 
 function Editor:enter()
   self.params = {
@@ -57,6 +58,12 @@ function Editor:keypressed(key, scancode, isrepeat)
       print(level.levelSize[1] .. ", " .. level.levelSize[2])
       self.board = Board:new(level.levelSize[1], level.levelSize[2])
       self.spawner = BlockSpawner:new(self.board, level)
+    end
+
+    if key == "f12" then
+      self.levelManager:saveCurrentSlot(self.spawner:getLevelSpawns())
+      Game:loadLevel(self.levelManager:loadCurrentSlot())
+      gamestate.switch(Game)
     end
   end
 end

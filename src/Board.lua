@@ -33,7 +33,6 @@ function Board:set(x, y, element)
 end
 
 function Board:remove(x, y)
-  print("removing at "..x..","..y)
   local removed_value = self:get(x, y)
   if removed_value ~= nil then
     local key_to_remove = nil

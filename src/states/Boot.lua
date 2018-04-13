@@ -1,5 +1,5 @@
 local gamestate = require ("lib.gamestate")
-local Editor = require("src.states.Editor")
+Editor = require("src.states.Editor")
 
 local Boot = gamestate.new()
 
