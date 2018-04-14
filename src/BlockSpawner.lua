@@ -43,7 +43,7 @@ function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
     toggle = function(self, prop)
       local prop_is_togglable = self.togglables[prop] ~= nil
       assert(prop_is_togglable, "'" .. prop .. "' property not togglable")
-      self.togglables[prop].active = false
+      self.togglables[prop].active = not self.togglables[prop].active
     end
   }
   setmetatable(block, {
@@ -84,6 +84,15 @@ function BlockSpawner:spawnSolidRemovableBlock(x, y)
     solid = true
   })
   self:registerSpawn("srb", {}, x, y)
+end
+
+function BlockSpawner:spawnSolidBreakableBlock(x, y)
+  local block = self:createBlock(x, y, {
+    quad = love.graphics.newQuad(0, 48, 16, 16, 64, 64),
+    solid = true,
+    breakable = true
+  })
+  self:registerSpawn("sbb", {}, x, y)
 end
 
 function BlockSpawner:spawnLaserBlock(x, y, direction)
@@ -154,6 +163,7 @@ function BlockSpawner:resetWithSpawns(level_data)
   for k,spawn in ipairs(spawn_data) do
     if spawn.id == "sb" then self:spawnSolidBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "srb" then self:spawnSolidRemovableBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "sbb" then self:spawnSolidBreakableBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "lb" then self:spawnLaserBlock(spawn.pos[1], spawn.pos[2], spawn.extra.laser) end
     if spawn.id == "tb" then self:spawnTotemBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "kb" then self:spawnSinkBlock(spawn.pos[1], spawn.pos[2]) end

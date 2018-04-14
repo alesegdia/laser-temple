@@ -4,6 +4,7 @@ local BlockSpawner = require("src.BlockSpawner")
 local LevelManager = require("src.LevelManager")
 local Board = require("src.Board")
 local assets = require("src.assets")
+require ("src.states.ChooseLevel")
 
 function Game:loadLevel(level)
   local totems = self:clearTotems(level)
@@ -34,35 +35,97 @@ function Game:clearTotems(level)
 end
 
 function Game:enter()
-  love.graphics.setFont(assets.font)
 end
+
+local below_cursor = nil
+local below_cursor_totem = nilREMOVE
 
 function Game:update()
+  if self.board.dead then
+    info_message = "You failed... [PRESS SPACE] to restart level"
+  else
+    local cur = self.totemBoard.cursor
+    below_cursor = self.board:get(cur[1], cur[2])
+    below_cursor_totem = self.totemBoard:get(cur[1], cur[2])
+    if self.possessedTotem ~= nil then
+      info_message = "[PRESS ARROWS] to [MOVE] totem. [PRESS SPACE] to [DROP] the totem."
+    elseif below_cursor_totem ~= nil then
+      info_message = "[PRESS SPACE] to [LIFT] the totem."
+    elseif below_cursor ~= nil then
+      if below_cursor.breakable then
+        info_message = "This block can be destroyed with lasers."
+      elseif below_cursor.sink then
+        info_message = "This is a sink. [MOVE] totems here."
+      elseif below_cursor.togglables["solid"] then
+        info_message = "[PRESS SPACE] to [TOGGLE] solidness."
+      else
+        info_message = "You must [MOVE] all the totems to sinks."
+      end
+    else
+      info_message = "You must [MOVE] all the totems to sinks."
+    end
+  end
 
 end
+
 
 function Game:handleMoveKey(pressed_key, test_key, dx, dy)
   if pressed_key == test_key then
-    assets.click:play()
     if self.possessedTotem == nil or self:tryMovePossessedTotem(dx, dy) then
+      assets.click:play()
       self.totemBoard:moveCursor(dx, dy)
+    else
+      assets.failSpacePress:play()
+    end
+    if not self.winThisLevel then
+      self.winThisLevel = self:checkWin()
+      if self.winThisLevel then
+        assets.win:play()
+      end
     end
   end
 end
 
-function Game:keypressed(key, scancode, isrepeat)
-  self:handleMoveKey(key, "left", -1, 0)
-  self:handleMoveKey(key, "right", 1, 0)
-  self:handleMoveKey(key, "up", 0, -1)
-  self:handleMoveKey(key, "down", 0, 1)
-
-  local cx, cy = self.totemBoard.cursor[1], self.totemBoard.cursor[2]
-
-  if key == "space" then
-    self:handleSpacePress(cx, cy)
+function Game:checkWin()
+  local sinks = self.board:getWithProp("sink")
+  local totems = self.totemBoard.entities
+  local wins = 0
+  local ntotems = 0
+  for kt, totem in pairs(totems) do
+    ntotems = ntotems + 1
+    for ks, sink in pairs(sinks) do
+      if totem.pos.x == sink.pos.x and totem.pos.y == sink.pos.y then
+        wins = wins + 1
+      end
+    end
   end
+  return wins == ntotems
+end
 
-  if key == "f12" then gamestate.switch(Editor) end
+function Game:keypressed(key, scancode, isrepeat)
+  if key == "escape" then
+    love.event.quit()
+  end
+  if not self.board.dead then
+    if not self.winThisLevel then
+      self:handleMoveKey(key, "left", -1, 0)
+      self:handleMoveKey(key, "right", 1, 0)
+      self:handleMoveKey(key, "up", 0, -1)
+      self:handleMoveKey(key, "down", 0, 1)
+
+      local cx, cy = self.totemBoard.cursor[1], self.totemBoard.cursor[2]
+
+      if key == "space" then
+        self:handleSpacePress(cx, cy)
+      end
+
+      if key == "f12" then gamestate.switch(Editor) end
+    end
+  else
+    if key == "space" then
+      gamestate.switch(ChooseLevel)
+    end
+  end
 end
 
 function Game:handleSpacePress(cx, cy)
@@ -78,6 +141,16 @@ function Game:handleSpacePress(cx, cy)
       self.possessedTotem.quad = assets.totemNormalQuad
       self.possessedTotem = nil
       assets.unpossess:play()
+    end
+  elseif below_cursor ~= nil then
+    if below_cursor.togglables["solid"] ~= nil then
+      below_cursor:toggle("solid")
+      assets.openclose:play()
+      if below_cursor.solid and below_cursor.breakable == nil then
+        below_cursor.quad = assets.srbOnQuad
+      else
+        below_cursor.quad = assets.srbOffQuad
+      end
     end
   end
   return success_click
@@ -112,6 +185,13 @@ function Game:draw()
     self.board:render()
     self.totemBoard:render()
     love.graphics.setColor(1, 1, 1)
+  end
+
+  if self.winThisLevel then
+    info_message = "The exit opens! [PRESS SPACE] to procceed to next level."
+  end
+  if info_message ~= nil then
+    love.graphics.print(info_message, 20, 20)
   end
 end
 

@@ -4,6 +4,7 @@ local assets = require("src.assets")
 local Boot = gamestate.new()
 
 function Boot:enter()
+  love.graphics.setFont(assets.font)
   assets.theme:play()
 end
 
@@ -13,6 +14,8 @@ function Boot:update()
   if love.keyboard.isDown("1") then
     print("meh")
     gamestate.switch(Editor)
+  elseif love.keyboard.isDown("2") then
+    gamestate.switch(ChooseLevel)
   end
 
 end

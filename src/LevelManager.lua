@@ -15,8 +15,6 @@ function LevelManager:init()
       self.lastLoadedLevel = self.lastLoadedLevel + 1
     end
   until level == nil
-
-
 end
 
 function LevelManager:increaseCurrentSlot()

@@ -31,7 +31,7 @@ function Editor:keypressed(key, scancode, isrepeat)
   if key == 'i' then self.params.nmaph = self.params.nmaph+1 end
   if key == 'k' then self.params.nmaph = self.params.nmaph-1 end
   if key == 'c' then
-    self.board = Board:new(self.params.nmaph, self.params.nmapw)
+    self.board = Board:new(self.params.nmaph, self.params.nmapw, true, false)
     self.spawner = BlockSpawner:new(self.board)
   end
   if self.board ~= nil then
@@ -44,11 +44,18 @@ function Editor:keypressed(key, scancode, isrepeat)
     if key == '2' then self.spawner:spawnSolidRemovableBlock(cx, cy) end
     if key == '3' then self.spawner:spawnTotemBlock(cx, cy) end
     if key == '4' then self.spawner:spawnSinkBlock(cx, cy) end
+    if key == '5' then self.spawner:spawnSolidBreakableBlock(cx, cy) end
 
     if key == 'w' then self.spawner:spawnLaserBlock(cx, cy, "d") end
     if key == 'a' then self.spawner:spawnLaserBlock(cx, cy, "l") end
     if key == 's' then self.spawner:spawnLaserBlock(cx, cy, "u") end
     if key == 'd' then self.spawner:spawnLaserBlock(cx, cy, "r") end
+
+    if key == 'q' then
+      self.spawner:despawn(cx, cy)
+      self.board:remove(cx, cy)
+      print ("Despawn")
+    end
 
     if key == "f2" then
       self.levelManager:saveCurrentSlot(self.spawner:getLevelSpawns())
@@ -72,6 +79,7 @@ local legend = [[
 arrows -> move
 WASD -> laser
 1234 -> blocks
+Q -> remove block
 
 NEW MAP SIZE = ({nmapw}, {nmaph})
 O/L -> increase/decrease new map width

@@ -31,6 +31,16 @@ function Board:get(x, y)
   return self.data[y][x]
 end
 
+function Board:getWithProp(prop)
+  local t = {}
+  for k,v in pairs(self.entities) do
+    if v[prop] ~= nil then
+      table.insert(t, v)
+    end
+  end 
+  return t
+end
+
 function Board:set(x, y, element)
   self:validateCoords(x, y)
   self.data[y][x] = element
@@ -150,8 +160,20 @@ function Board:ray(x, y, dir)
         brocell = self.broBoard:get(x, y)
       end
       if (cell ~= nil and cell.solid) or (brocell ~= nil) then
+        if cell ~= nil then
+          if cell.breakable then
+            cell.solid = false 
+            cell.quad = assets.brokenQuad
+            assets.explosion:play()
+          end
+        end
         hit = true
         x, y = x - dx, y - dy
+        if brocell ~= nil and not self.dead then 
+          self.dead = true
+          brocell.quad = love.graphics.newQuad(32, 32, 16, 16, 64, 64)
+          assets.explosion:play()
+        end
       end
     else
       hit = true
