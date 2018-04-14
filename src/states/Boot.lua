@@ -1,7 +1,11 @@
 local gamestate = require ("lib.gamestate")
 Editor = require("src.states.Editor")
-
+local assets = require("src.assets")
 local Boot = gamestate.new()
+
+function Boot:enter()
+  assets.theme:play()
+end
 
 
 function Boot:update()

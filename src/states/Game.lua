@@ -3,6 +3,7 @@ Game = gamestate.new()
 local BlockSpawner = require("src.BlockSpawner")
 local LevelManager = require("src.LevelManager")
 local Board = require("src.Board")
+local assets = require("src.assets")
 
 function Game:loadLevel(level)
   local totems = self:clearTotems(level)
@@ -10,7 +11,7 @@ function Game:loadLevel(level)
   self.spawner = BlockSpawner(self.board, level)
   self.totemBoard = Board(totems.levelSize[1], totems.levelSize[2], true, true)
   self.totemSpawner = BlockSpawner(self.totemBoard, totems)
-  print("imere")
+  self.board:setBroBoard(self.totemBoard)
 end
 
 function Game:clearTotems(level)
@@ -18,7 +19,6 @@ function Game:clearTotems(level)
   local totems = {}
   for k,v in ipairs(level.data) do
     if v.id == "tb" then
-      print("totem")
       table.insert(totem_keys, k)
     end
   end
@@ -34,6 +34,7 @@ function Game:clearTotems(level)
 end
 
 function Game:enter()
+  love.graphics.setFont(assets.font)
 end
 
 function Game:update()
@@ -42,6 +43,7 @@ end
 
 function Game:handleMoveKey(pressed_key, test_key, dx, dy)
   if pressed_key == test_key then
+    assets.click:play()
     if self.possessedTotem == nil or self:tryMovePossessedTotem(dx, dy) then
       self.totemBoard:moveCursor(dx, dy)
     end
@@ -64,11 +66,21 @@ function Game:keypressed(key, scancode, isrepeat)
 end
 
 function Game:handleSpacePress(cx, cy)
+  local success_click = false
   local totem = self.totemBoard:get(cx, cy)
   if totem ~= nil then
-    print("posessing")
-    self.possessedTotem = totem
+    success_click = true
+    if self.possessedTotem == nil then
+      self.possessedTotem = totem
+      totem.quad = assets.totemPossessedQuad
+      assets.possess:play()
+    else
+      self.possessedTotem.quad = assets.totemNormalQuad
+      self.possessedTotem = nil
+      assets.unpossess:play()
+    end
   end
+  return success_click
 end
 
 function Game:tryMovePossessedTotem(dx, dy)
@@ -91,7 +103,7 @@ end
 
 function Game:isFree(board, x, y)
   local cell = board:get(x, y)
-  return cell == nil or (cell ~= nil and cell.solid)
+  return cell == nil or (cell ~= nil and not cell.solid)
 end
 
 function Game:draw()

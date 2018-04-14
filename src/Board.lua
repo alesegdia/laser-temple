@@ -22,6 +22,10 @@ function Board:alloc()
   end
 end
 
+function Board:setBroBoard(board)
+  self.broBoard = board
+end
+
 function Board:get(x, y)
   self:validateCoords(x, y)
   return self.data[y][x]
@@ -136,15 +140,16 @@ function Board:ray(x, y, dir)
   if dir == 'u' then dx, dy =  0,  1 end
   if dir == 'd' then dx, dy =  0, -1 end
   if dir == 'l' then dx, dy = -1,  0 end
-  if dir == 'r' then
-    x = x + 2
-    dx, dy =  1,  0
-  end
+  if dir == 'r' then dx, dy =  1,  0 end
   while hit == false do
     x, y = x + dx, y + dy
     if self:validCoords(x, y) then
       local cell = self:get(x, y)
-      if cell ~= nil and cell.solid then
+      local brocell = nil
+      if self.broBoard then
+        brocell = self.broBoard:get(x, y)
+      end
+      if (cell ~= nil and cell.solid) or (brocell ~= nil) then
         hit = true
         x, y = x - dx, y - dy
       end
