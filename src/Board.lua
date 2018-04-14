@@ -1,6 +1,8 @@
 local class = require("lib.30log")
 local Board = class "Board"
 local assets = require("src.assets")
+require("lib.inspect")
+local util = require("lib.util")
 
 function Board:init(width, height, showcursor, totemboard)
   self.totemBoard = totemboard or false
@@ -56,16 +58,12 @@ function Board:movePiece(x1, y1, x2, y2)
 end
 
 function Board:remove(x, y)
+  print("removing from board")
   local removed_value = self:get(x, y)
-  if removed_value ~= nil then
-    local key_to_remove = nil
-    for k,v in pairs(self.entities) do
-      if v == removed_value then
-        key_to_remove = k
-      end
-    end
-    table.remove(self.entities, k)
-  end
+  self:set(x, y, nil)
+  util.remove_if(self.entities, function(e)
+    return e.pos.x == x and e.pos.y == y
+  end)
   return removed_value
 end
 

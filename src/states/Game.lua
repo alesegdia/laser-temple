@@ -4,6 +4,7 @@ local BlockSpawner = require("src.BlockSpawner")
 local LevelManager = require("src.LevelManager")
 local Board = require("src.Board")
 local assets = require("src.assets")
+local util = require("lib.util")
 require ("src.states.ChooseLevel")
 
 function Game:loadLevel(level)
@@ -16,18 +17,19 @@ function Game:loadLevel(level)
 end
 
 function Game:clearTotems(level)
-  local totem_keys = {}
-  local totems = {}
-  for k,v in ipairs(level.data) do
-    if v.id == "tb" then
-      table.insert(totem_keys, k)
-    end
-  end
-  for k,v in ipairs(totem_keys) do
-    local totem = level.data[v]
-    table.remove(level.data, v)
-    table.insert(totems, totem)
-  end
+  local totems = util.deepcopy(level.data)
+  local no_totems = util.deepcopy(level.data)
+
+  util.remove_if(totems, function(e)
+    return e.id ~= "tb"
+  end)
+
+  util.remove_if(no_totems, function(e)
+    return e.id == "tb"
+  end)
+
+  level.data = no_totems
+  
   return {
     levelSize = level.levelSize,
     data = totems
@@ -35,6 +37,10 @@ function Game:clearTotems(level)
 end
 
 function Game:enter()
+  below_cursor = nil
+  below_cursor_totem = nil
+  self.possessedTotem = nil
+  self.winThisLevel = false
 end
 
 local below_cursor = nil
@@ -125,6 +131,10 @@ function Game:keypressed(key, scancode, isrepeat)
     if key == "space" then
       gamestate.switch(ChooseLevel)
     end
+  end
+  if self.winThisLevel and key == "space" then
+    ChooseLevel:nextLevel()
+    gamestate.switch(ChooseLevel)
   end
 end
 

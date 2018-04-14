@@ -24,6 +24,12 @@ function Editor:update()
 end
 
 function Editor:keypressed(key, scancode, isrepeat)
+  if key == "f4" then
+    local level = self.levelManager:loadCurrentSlot()
+    print(level.levelSize[1] .. ", " .. level.levelSize[2])
+    self.board = Board:new(level.levelSize[1], level.levelSize[2], true, false)
+    self.spawner = BlockSpawner:new(self.board, level)
+  end
   if key == 'u' then self.levelManager:increaseCurrentSlot() end
   if key == 'j' then self.levelManager:decreaseCurrentSlot() end
   if key == 'o' then self.params.nmapw = self.params.nmapw+1 end
@@ -59,12 +65,6 @@ function Editor:keypressed(key, scancode, isrepeat)
 
     if key == "f2" then
       self.levelManager:saveCurrentSlot(self.spawner:getLevelSpawns())
-    end
-    if key == "f4" then
-      local level = self.levelManager:loadCurrentSlot()
-      print(level.levelSize[1] .. ", " .. level.levelSize[2])
-      self.board = Board:new(level.levelSize[1], level.levelSize[2], true, false)
-      self.spawner = BlockSpawner:new(self.board, level)
     end
 
     if key == "f12" then

@@ -1,5 +1,6 @@
 local util = require("lib.util")
 local class = require("lib.30log")
+local util = require("lib.util")
 
 local BlockSpawner = class "BlockSpawner"
 
@@ -23,16 +24,11 @@ function BlockSpawner:init(board, level_data)
 end
 
 function BlockSpawner:despawn(x, y)
+  print("despawning")
   self.board:remove(x, y)
-  local to_remove = nil
-  for k,v in pairs(self.levelSpawns.data) do
-    if v.pos[1] == x and v.pos[2] == y then
-      to_remove = k
-    end
-  end
-  if to_remove ~= nil then
-    table.remove(self.levelSpawns.data, k)
-  end
+  util.remove_if(self.levelSpawns.data, function(e)
+    return e.pos[1] == x and e.pos[2] == y
+  end)
 end
 
 function BlockSpawner:createBlock(x_, y_, normal_props, togglable_props)
@@ -102,7 +98,6 @@ function BlockSpawner:spawnLaserBlock(x, y, direction)
     quad = love.graphics.newQuad(0, 32, 16, 16, 64, 64)
   })
   self:registerSpawn("lb", {laser=direction}, x, y)
-  return block
 end
 
 function BlockSpawner:spawnTotemBlock(x, y)
@@ -143,23 +138,9 @@ function BlockSpawner:resetLevelSpawns()
   }
 end
 
-function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
 
 function BlockSpawner:resetWithSpawns(level_data)
-  local spawn_data = deepcopy(level_data.data)
+  local spawn_data = util.deepcopy(level_data.data)
   for k,spawn in ipairs(spawn_data) do
     if spawn.id == "sb" then self:spawnSolidBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "srb" then self:spawnSolidRemovableBlock(spawn.pos[1], spawn.pos[2]) end

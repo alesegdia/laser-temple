@@ -16,12 +16,16 @@ end
 function ChooseLevel:enter()
 end
 
+local txt = [[
+Congratultions! You helped Kisaka's team find the exit from the alien temple!
+]]
+
 function ChooseLevel:draw()
   if not win_game then
     love.graphics.print("LEVEL " .. current_level, 10, 10)
     love.graphics.print("Press space to begin", 10, 30)
   else
-    love.graphics.print("You reached the exit!")
+    love.graphics.printf(txt, 20, 20, 600, "left")
   end
 end
 
