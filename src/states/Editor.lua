@@ -56,7 +56,7 @@ function Editor:keypressed(key, scancode, isrepeat)
     if key == "f4" then
       local level = self.levelManager:loadCurrentSlot()
       print(level.levelSize[1] .. ", " .. level.levelSize[2])
-      self.board = Board:new(level.levelSize[1], level.levelSize[2])
+      self.board = Board:new(level.levelSize[1], level.levelSize[2], true, false)
       self.spawner = BlockSpawner:new(self.board, level)
     end
 

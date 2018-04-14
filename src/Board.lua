@@ -2,7 +2,9 @@ local class = require("lib.30log")
 local Board = class "Board"
 local assets = require("src.assets")
 
-function Board:init(width, height)
+function Board:init(width, height, showcursor, totemboard)
+  self.totemBoard = totemboard or false
+  self.showCursor = showcursor or false 
   self.width, self.height = width, height
   self.size = width * height
   self.entities = {}
@@ -30,6 +32,13 @@ function Board:set(x, y, element)
   self.data[y][x] = element
   table.insert(self.entities, element)
   return element
+end
+
+function Board:movePiece(x1, y1, x2, y2)
+  local piece = self:get(x1, y1)
+  piece.pos.x, piece.pos.y = x2, y2
+  self:set(x1, y1, nil)
+  self:set(x2, y2, piece)
 end
 
 function Board:remove(x, y)
@@ -96,7 +105,9 @@ function Board:render()
       quad = cell.quad
     end
     local cx, cy = (x-1) * 16, (y-1) * 16
-    love.graphics.draw(assets.tilesheet, quad, cx, cy)
+    if not self.totemBoard or (self.totemBoard and cell ~= nil and cell.totem) then
+      love.graphics.draw(assets.tilesheet, quad, cx, cy)
+    end
     if cell ~= nil and cell.laser then
       local rx, ry = self:ray(cell.pos.x, cell.pos.y, cell.laser)
       local rcx, rcy = (rx-1) * 16 + 8, (ry-1) * 16 + 8
@@ -113,7 +124,9 @@ function Board:render()
       love.graphics.line(v.from[1], v.from[2], v.to[1], v.to[2])
       love.graphics.setColor(1, 1, 1)
   end
-  love.graphics.draw(assets.tilesheet, assets.markerQuad, (self.cursor[1]-1) * 16, (self.cursor[2]-1) * 16)
+  if self.showCursor then
+    love.graphics.draw(assets.tilesheet, assets.markerQuad, (self.cursor[1]-1) * 16, (self.cursor[2]-1) * 16)
+  end
   love.graphics.pop()
 end
 
