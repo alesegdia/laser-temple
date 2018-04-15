@@ -13,6 +13,7 @@ function Editor:enter()
     current_slot = 1
   }
   self.levelManager = LevelManager()
+  self.legendActive = true
 end
 
 function Editor:leave()
@@ -24,6 +25,9 @@ function Editor:update()
 end
 
 function Editor:keypressed(key, scancode, isrepeat)
+  if key == "f10" then
+    self.legendActive = not self.legendActive
+  end
   if key == "f4" then
     local level = self.levelManager:loadCurrentSlot()
     print(level.levelSize[1] .. ", " .. level.levelSize[2])
@@ -51,6 +55,8 @@ function Editor:keypressed(key, scancode, isrepeat)
     if key == '3' then self.spawner:spawnTotemBlock(cx, cy) end
     if key == '4' then self.spawner:spawnSinkBlock(cx, cy) end
     if key == '5' then self.spawner:spawnSolidBreakableBlock(cx, cy) end
+    if key == '6' then self.spawner:spawnBombBlock(cx, cy) end
+    if key == '7' then self.spawner:spawnSolidRemovableBlockOff(cx, cy) end
 
     if key == 'w' then self.spawner:spawnLaserBlock(cx, cy, "d") end
     if key == 'a' then self.spawner:spawnLaserBlock(cx, cy, "l") end
@@ -72,6 +78,7 @@ function Editor:keypressed(key, scancode, isrepeat)
       Game:loadLevel(self.levelManager:loadCurrentSlot())
       gamestate.switch(Game)
     end
+
   end
 end
 
@@ -101,7 +108,11 @@ function Editor:renderLegend()
   }
   love.graphics.scale(1,1)
   love.graphics.setColor(1, 0, 1)
-  love.graphics.print(final_legend, 10, 10) 
+  if self.legendActive then
+    love.graphics.print(final_legend, 10, 10) 
+  else
+    love.graphics.print("EDITOR", 10, 10) 
+  end
   love.graphics.setColor(1, 1, 1)
 end
 

@@ -18,7 +18,7 @@ function LevelManager:init()
 end
 
 function LevelManager:increaseCurrentSlot()
-  self.currentSlot = math.min(self.lastLoadedLevel + 1, self.currentSlot + 1)
+  self.currentSlot = math.min(self.lastLoadedLevel, self.currentSlot + 1)
 end
 
 function LevelManager:decreaseCurrentSlot()
@@ -26,7 +26,7 @@ function LevelManager:decreaseCurrentSlot()
 end
 
 function LevelManager:getCurrentSlotText()
-  if self.currentSlot == self.lastLoadedLevel + 1 then
+  if self.currentSlot == self.lastLoadedLevel then
     return self.currentSlot .. ": new level"
   else
     return self.currentSlot

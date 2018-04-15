@@ -5,7 +5,7 @@ local Boot = gamestate.new()
 
 function Boot:enter()
   love.graphics.setFont(assets.font)
-  love.audio.setVolume(0)
+  love.audio.setVolume(0.7)
   assets.theme:play()
 end
 

@@ -82,6 +82,15 @@ function BlockSpawner:spawnSolidRemovableBlock(x, y)
   self:registerSpawn("srb", {}, x, y)
 end
 
+function BlockSpawner:spawnSolidRemovableBlockOff(x, y)
+  local block = self:createBlock(x, y, {
+    quad = love.graphics.newQuad(48, 0, 16, 16, 64, 64)
+  }, {
+    solid = false
+  })
+  self:registerSpawn("srbf", {}, x, y)
+end
+
 function BlockSpawner:spawnSolidBreakableBlock(x, y)
   local block = self:createBlock(x, y, {
     quad = love.graphics.newQuad(0, 48, 16, 16, 64, 64),
@@ -95,6 +104,7 @@ function BlockSpawner:spawnLaserBlock(x, y, direction)
   local block = self:createBlock(x, y, {
     solid = true,
     laser = direction,
+    breakable = true,
     quad = love.graphics.newQuad(0, 32, 16, 16, 64, 64)
   })
   self:registerSpawn("lb", {laser=direction}, x, y)
@@ -103,6 +113,7 @@ end
 function BlockSpawner:spawnTotemBlock(x, y)
   local block = self:createBlock(x, y, {
     totem = true,
+    solid = true,
     quad = love.graphics.newQuad(16, 16, 16, 16, 64, 64)
   })
   self:registerSpawn("tb", {}, x, y)
@@ -114,6 +125,14 @@ function BlockSpawner:spawnSinkBlock(x, y)
     quad = love.graphics.newQuad(32, 0, 16, 16, 64, 64)
   })
   self:registerSpawn("kb", {}, x, y)
+end
+
+function BlockSpawner:spawnBombBlock(x, y)
+  local block = self:createBlock(x, y, {
+    bomb = true,
+    quad = love.graphics.newQuad(32, 48, 16, 16, 64, 64)
+  })
+  self:registerSpawn("bb", {}, x, y)
 end
 
 function BlockSpawner:registerSpawn(block_id, extra_data, x, y)
@@ -148,6 +167,8 @@ function BlockSpawner:resetWithSpawns(level_data)
     if spawn.id == "lb" then self:spawnLaserBlock(spawn.pos[1], spawn.pos[2], spawn.extra.laser) end
     if spawn.id == "tb" then self:spawnTotemBlock(spawn.pos[1], spawn.pos[2]) end
     if spawn.id == "kb" then self:spawnSinkBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "bb" then self:spawnBombBlock(spawn.pos[1], spawn.pos[2]) end
+    if spawn.id == "srbf" then self:spawnSolidRemovableBlockOff(spawn.pos[1], spawn.pos[2]) end
 
   end
 end

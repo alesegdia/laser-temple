@@ -1,7 +1,6 @@
 local class = require("lib.30log")
 local Board = class "Board"
 local assets = require("src.assets")
-require("lib.inspect")
 local util = require("lib.util")
 
 function Board:init(width, height, showcursor, totemboard)
@@ -160,6 +159,9 @@ function Board:ray(x, y, dir)
       if (cell ~= nil and cell.solid) or (brocell ~= nil) then
         if cell ~= nil then
           if cell.breakable then
+            if cell.laser then
+              cell.laser = nil
+            end
             cell.solid = false 
             cell.quad = assets.brokenQuad
             assets.explosion:play()

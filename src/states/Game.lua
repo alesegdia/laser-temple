@@ -72,6 +72,12 @@ function Game:update()
     end
   end
 
+  if below_cursor ~= nil and below_cursor.bomb and below_cursor_totem ~= nil then
+    self.board.dead = true
+    below_cursor_totem.quad = love.graphics.newQuad(32, 32, 16, 16, 64, 64)
+    assets.explosion:play()
+  end
+
 end
 
 
@@ -173,6 +179,7 @@ function Game:tryMovePossessedTotem(dx, dy)
     if self.board:validCoords(nx, ny) then
       local board_free = self:isFree(self.board, nx, ny)
       local totem_free = self:isFree(self.totemBoard, nx, ny)
+      print(totem_free)
       if board_free and totem_free then
         self.totemBoard:movePiece(tx, ty, nx, ny)
         return true
