@@ -73,9 +73,11 @@ function Game:update()
   end
 
   if below_cursor ~= nil and below_cursor.bomb and below_cursor_totem ~= nil then
+    if not self.board.dead then
+      assets.explosion:play()
+    end
     self.board.dead = true
     below_cursor_totem.quad = love.graphics.newQuad(32, 32, 16, 16, 64, 64)
-    assets.explosion:play()
   end
 
 end
